@@ -2,6 +2,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -99,6 +100,7 @@ void ProgramState::LoadFromFile(std::string filename) {
 
 ProgramState *programState;
 
+
 void DrawImGui(ProgramState *programState);
 
 int main() {
@@ -166,17 +168,19 @@ int main() {
     // load models
     // -----------
     Model earthModel("resources/objects/earth/Earth.obj");
-    //Model mercuryModel("resources/objects/mercury/Mercury_1K.obj");
+    Model mercuryModel("resources/objects/mercury/Mercury_1K.obj");
+    Model sunModel("resources/objects/sun/sun.obj");
 
 
     earthModel.SetShaderTextureNamePrefix("material.");
-    //mercuryModel.SetShaderTextureNamePrefix("material.");
+    mercuryModel.SetShaderTextureNamePrefix("material.");
+    sunModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
     pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
-    pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
-    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
+    pointLight.diffuse = glm::vec3(2.0, 2.0, 2.0);
+    pointLight.specular = glm::vec3(3.0, 3.0, 3.0);
 
     pointLight.constant = 1.0f;
     pointLight.linear = 0.09f;
@@ -227,17 +231,26 @@ int main() {
 
         glm::mat4 model1 = glm::mat4(1.0f);
         model1 = glm::translate(model1, programState->earthPosition);
-        model1 = glm::scale(model1, glm::vec3(programState->earthScale));
+        model1 = glm::scale(model1, glm::vec3(1.0f));
         ourShader.setMat4("model", model1);
         earthModel.Draw(ourShader);
 
 
-        //glm::mat4 model2 = glm::mat4(1.0f);
-        //model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
-        //model2 = glm::scale(model2, glm::vec3(0.5f));
-        //model2 = glm::rotate(model2, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        //ourShader.setMat4("model", model2);
-        //mercuryModel.Draw(ourShader);
+        glm::mat4 model2 = glm::mat4(1.0f);
+        model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
+        model2 = glm::scale(model2, glm::vec3(1.3f));
+        model2 = glm::rotate(model2, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", model2);
+        mercuryModel.Draw(ourShader);
+
+        glm::mat4 model3 = glm::mat4(1.0f);
+        model3 = glm::translate(model3, glm::vec3(15.0f, -1.0f, 0.0f));
+        model3 = glm::scale(model3, glm::vec3(5.0f));
+        model3 = glm::rotate(model3, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", model3);
+        sunModel.Draw(ourShader);
+
+
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
