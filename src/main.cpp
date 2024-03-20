@@ -170,11 +170,12 @@ int main() {
     Model earthModel("resources/objects/earth/Earth.obj");
     Model mercuryModel("resources/objects/mercury/Mercury_1K.obj");
     Model sunModel("resources/objects/sun/sun.obj");
-
+    Model venusModel("resources/objects/venus/jupiter.obj");
 
     earthModel.SetShaderTextureNamePrefix("material.");
     mercuryModel.SetShaderTextureNamePrefix("material.");
     sunModel.SetShaderTextureNamePrefix("material.");
+    venusModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
@@ -237,8 +238,8 @@ int main() {
 
 
         glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
-        model2 = glm::scale(model2, glm::vec3(1.3f));
+        model2 = glm::translate(model2, glm::vec3(10.0f, -1.0f, 0.0f));
+        model2 = glm::scale(model2, glm::vec3(2.0f));
         model2 = glm::rotate(model2, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         ourShader.setMat4("model", model2);
         mercuryModel.Draw(ourShader);
@@ -249,6 +250,17 @@ int main() {
         model3 = glm::rotate(model3, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         ourShader.setMat4("model", model3);
         sunModel.Draw(ourShader);
+
+        glm::mat4 model4 = glm::mat4(1.0f);
+        model4 = glm::translate(model4, glm::vec3(5.0f, 0.0f, 0.0f));
+        model4 = glm::scale(model4, glm::vec3(1.0f));
+        model4 = glm::rotate(model4, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", model4);
+        venusModel.Draw(ourShader);
+
+
+
+
 
 
 
