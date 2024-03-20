@@ -57,7 +57,7 @@ struct ProgramState {
     bool ImGuiEnabled = false;
     Camera camera;
     bool CameraMouseMovementUpdateEnabled = true;
-    glm::vec3 earthPosition = glm::vec3(0.0f);
+    glm::vec3 earthPosition = glm::vec3(0.0f, -3.5f, 0.0f);
     float earthScale = 1.0f;
     PointLight pointLight;
     ProgramState()
@@ -73,13 +73,17 @@ void ProgramState::SaveToFile(std::string filename) {
     out << clearColor.r << '\n'
         << clearColor.g << '\n'
         << clearColor.b << '\n'
-        << ImGuiEnabled << '\n'
-        << camera.Position.x << '\n'
-        << camera.Position.y << '\n'
-        << camera.Position.z << '\n'
-        << camera.Front.x << '\n'
-        << camera.Front.y << '\n'
-        << camera.Front.z << '\n';
+        << ImGuiEnabled << '\n';
+        //<< camera.Position.x << '\n'
+        //<< camera.Position.y << '\n'
+        //<< camera.Position.z << '\n'
+        //<< camera.Front.x << '\n'
+        //<< camera.Front.y << '\n'
+        //<< camera.Front.z << '\n';
+
+
+
+
 }
 
 void ProgramState::LoadFromFile(std::string filename) {
@@ -139,7 +143,7 @@ int main() {
     }
 
     // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
 
     programState = new ProgramState;
     programState->LoadFromFile("resources/program_state.txt");
@@ -177,17 +181,20 @@ int main() {
     sunModel.SetShaderTextureNamePrefix("material.");
     venusModel.SetShaderTextureNamePrefix("material.");
 
+    glm::vec3 sunPosition = glm::vec3(15.0f, -1.0f, 0.0f);
+    programState->pointLight.position = sunPosition;
+
+
+
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
-    pointLight.diffuse = glm::vec3(2.0, 2.0, 2.0);
-    pointLight.specular = glm::vec3(3.0, 3.0, 3.0);
+    pointLight.position = sunPosition;
+    pointLight.ambient = glm::vec3(0.5, 0.5, 0.5);
+    pointLight.diffuse = glm::vec3(2.5, 2.5, 2.5);
+    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
     pointLight.constant = 1.0f;
     pointLight.linear = 0.09f;
     pointLight.quadratic = 0.032f;
-
-
 
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -213,7 +220,8 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
+        //pointLight.position = glm::vec3(15.0f * cos(currentFrame), -1.0f, 0.0 * sin(currentFrame));
+        pointLight.position = glm::vec3(15.0f, -1.0f, 0.0 );
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -230,38 +238,70 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
+
+        glm::vec3 sunPosition = glm::vec3(15.0f, -3.5f, 0.0f);
+
+        float earthOrbitRadius = 18.0f;
+        float earthAngle = glm::radians(glfwGetTime() * 10.0f);
+        glm::vec3 earthPosition = glm::vec3(cos(earthAngle) * earthOrbitRadius + sunPosition.x, sunPosition.y, sin(earthAngle) * earthOrbitRadius + sunPosition.z);
+        glm::mat4 model1 = glm::mat4(1.0f);
+        model1 = glm::translate(model1, earthPosition);
+        model1 = glm::scale(model1, glm::vec3(1.0f));
+        ourShader.setMat4("model", model1);
+        earthModel.Draw(ourShader);
+
+        float mercuryOrbitRadius = 11.0f;
+        float mercuryAngle = glm::radians(glfwGetTime() * 20.0f);
+        glm::vec3 mercuryPosition = glm::vec3(cos(mercuryAngle) * mercuryOrbitRadius + sunPosition.x, sunPosition.y, sin(mercuryAngle) * mercuryOrbitRadius + sunPosition.z);
+        glm::mat4 model2 = glm::mat4(1.0f);
+        model2 = glm::translate(model2, mercuryPosition);
+        model2 = glm::scale(model2, glm::vec3(2.0f));
+        ourShader.setMat4("model", model2);
+        mercuryModel.Draw(ourShader);
+
+        float venusOrbitRadius = 13.0f; // Rastojanje Venere od Sunca
+        float venusAngle = glm::radians(glfwGetTime() * 15.0f); // Ugao rotacije (menjati brzinu rotacije po potrebi)
+        glm::vec3 venusPosition = glm::vec3(cos(venusAngle) * venusOrbitRadius + sunPosition.x, sunPosition.y, sin(venusAngle) * venusOrbitRadius + sunPosition.z);
+        glm::mat4 model4 = glm::mat4(1.0f);
+        model4 = glm::translate(model4, venusPosition);
+        model4 = glm::scale(model4, glm::vec3(1.0f));
+        ourShader.setMat4("model", model4);
+        venusModel.Draw(ourShader);
+
+
+        /*
+        // EARTH
         glm::mat4 model1 = glm::mat4(1.0f);
         model1 = glm::translate(model1, programState->earthPosition);
         model1 = glm::scale(model1, glm::vec3(1.0f));
         ourShader.setMat4("model", model1);
         earthModel.Draw(ourShader);
 
-
+        // MERCURY
         glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(10.0f, -1.0f, 0.0f));
+        model2 = glm::translate(model2, glm::vec3(10.0f, -3.5f, 0.0f));
         model2 = glm::scale(model2, glm::vec3(2.0f));
         model2 = glm::rotate(model2, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         ourShader.setMat4("model", model2);
         mercuryModel.Draw(ourShader);
 
-        glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::translate(model3, glm::vec3(15.0f, -1.0f, 0.0f));
-        model3 = glm::scale(model3, glm::vec3(5.0f));
-        model3 = glm::rotate(model3, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        ourShader.setMat4("model", model3);
-        sunModel.Draw(ourShader);
-
         glm::mat4 model4 = glm::mat4(1.0f);
-        model4 = glm::translate(model4, glm::vec3(5.0f, 0.0f, 0.0f));
+        model4 = glm::translate(model4, glm::vec3(5.0f, -3.5f, 0.0f));
         model4 = glm::scale(model4, glm::vec3(1.0f));
         model4 = glm::rotate(model4, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         ourShader.setMat4("model", model4);
         venusModel.Draw(ourShader);
 
+        */
 
 
 
-
+        glm::mat4 model3 = glm::mat4(1.0f);
+        model3 = glm::translate(model3, glm::vec3(15.0f, -3.5f, 0.0f));
+        model3 = glm::scale(model3, glm::vec3(5.0f));
+        model3 = glm::rotate(model3, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", model3);
+        sunModel.Draw(ourShader);
 
 
         if (programState->ImGuiEnabled)
