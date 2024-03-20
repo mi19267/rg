@@ -56,8 +56,8 @@ struct ProgramState {
     bool ImGuiEnabled = false;
     Camera camera;
     bool CameraMouseMovementUpdateEnabled = true;
-    glm::vec3 backpackPosition = glm::vec3(0.0f);
-    float backpackScale = 1.0f;
+    glm::vec3 earthPosition = glm::vec3(0.0f);
+    float earthScale = 1.0f;
     PointLight pointLight;
     ProgramState()
             : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
@@ -153,7 +153,7 @@ int main() {
 
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330 core");
+    ImGui_ImplOpenGL3_Init("#version 410 core");
 
     // configure global opengl state
     // -----------------------------
@@ -165,8 +165,12 @@ int main() {
 
     // load models
     // -----------
-    Model ourModel("resources/objects/backpack/backpack.obj");
-    ourModel.SetShaderTextureNamePrefix("material.");
+    Model earthModel("resources/objects/earth/Earth.obj");
+    //Model mercuryModel("resources/objects/mercury/Mercury_1K.obj");
+
+
+    earthModel.SetShaderTextureNamePrefix("material.");
+    //mercuryModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
@@ -221,13 +225,19 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
-        // render the loaded model
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model,
-                               programState->backpackPosition); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        glm::mat4 model1 = glm::mat4(1.0f);
+        model1 = glm::translate(model1, programState->earthPosition);
+        model1 = glm::scale(model1, glm::vec3(programState->earthScale));
+        ourShader.setMat4("model", model1);
+        earthModel.Draw(ourShader);
+
+
+        //glm::mat4 model2 = glm::mat4(1.0f);
+        //model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
+        //model2 = glm::scale(model2, glm::vec3(0.5f));
+        //model2 = glm::rotate(model2, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //ourShader.setMat4("model", model2);
+        //mercuryModel.Draw(ourShader);
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
@@ -305,31 +315,30 @@ void DrawImGui(ProgramState *programState) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    //{
+        //static float f = 0.0f;
+        //ImGui::Begin("Hello window");
+        //ImGui::Text("Hello text");
+        //ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
+        //ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
+        //ImGui::DragFloat3("Backpack position", (float*)&programState->backpackPosition);
+        //ImGui::DragFloat("Backpack scale", &programState->backpackScale, 0.05, 0.1, 4.0);
 
-    {
-        static float f = 0.0f;
-        ImGui::Begin("Hello window");
-        ImGui::Text("Hello text");
-        ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
-        ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
-        ImGui::DragFloat3("Backpack position", (float*)&programState->backpackPosition);
-        ImGui::DragFloat("Backpack scale", &programState->backpackScale, 0.05, 0.1, 4.0);
+        //ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
+        //ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
+        //ImGui::DragFloat("pointLight.quadratic", &programState->pointLight.quadratic, 0.05, 0.0, 1.0);
+        //ImGui::End();
+    //}
 
-        ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
-        ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
-        ImGui::DragFloat("pointLight.quadratic", &programState->pointLight.quadratic, 0.05, 0.0, 1.0);
-        ImGui::End();
-    }
-
-    {
-        ImGui::Begin("Camera info");
-        const Camera& c = programState->camera;
-        ImGui::Text("Camera position: (%f, %f, %f)", c.Position.x, c.Position.y, c.Position.z);
-        ImGui::Text("(Yaw, Pitch): (%f, %f)", c.Yaw, c.Pitch);
-        ImGui::Text("Camera front: (%f, %f, %f)", c.Front.x, c.Front.y, c.Front.z);
-        ImGui::Checkbox("Camera mouse update", &programState->CameraMouseMovementUpdateEnabled);
-        ImGui::End();
-    }
+    //{
+        //ImGui::Begin("Camera info");
+        //const Camera& c = programState->camera;
+        //ImGui::Text("Camera position: (%f, %f, %f)", c.Position.x, c.Position.y, c.Position.z);
+        //ImGui::Text("(Yaw, Pitch): (%f, %f)", c.Yaw, c.Pitch);
+        //ImGui::Text("Camera front: (%f, %f, %f)", c.Front.x, c.Front.y, c.Front.z);
+        //ImGui::Checkbox("Camera mouse update", &programState->CameraMouseMovementUpdateEnabled);
+        //ImGui::End();
+    //}
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
