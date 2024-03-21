@@ -1,7 +1,6 @@
 #version 410 core
 out vec4 FragColor;
 
-
 struct PointLight {
     vec3 position;
 
@@ -57,47 +56,3 @@ void main()
     vec3 result = CalcPointLight(pointLight, normal, FragPos, viewDir);
     FragColor = vec4(result, 1.0);
 }
-
-
-
-/*
-#version 410 core
-out vec4 FragColor;
-
-struct Material {
-    sampler2D texture_diffuse1;
-    sampler2D texture_specular1;
-    float shininess;
-};
-
-in vec2 TexCoords;
-in vec3 Normal;
-in vec3 FragPos;
-
-uniform Material material;
-uniform vec3 viewPosition;
-uniform vec3 lightDirection;
-
-vec3 CalcLighting(vec3 normal, vec3 viewDir)
-{
-    float diff = max(dot(normal, -lightDirection), 0.0);
-
-    vec3 reflectDir = reflect(lightDirection, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-
-    vec3 diffuse = diff * vec3(texture(material.texture_diffuse1, TexCoords));
-    vec3 specular = spec * vec3(texture(material.texture_specular1, TexCoords).xxx);
-
-    return diffuse + specular;
-}
-
-void main()
-{
-    vec3 normal = normalize(Normal);
-    vec3 viewDir = normalize(viewPosition - FragPos);
-
-    vec3 result = CalcLighting(normal, viewDir);
-
-    FragColor = vec4(result, 1.0);
-}
-*/
