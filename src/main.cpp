@@ -259,14 +259,21 @@ int main() {
         ourShader.setMat4("model", model2);
         mercuryModel.Draw(ourShader);
 
-        float venusOrbitRadius = 13.0f; // Rastojanje Venere od Sunca
-        float venusAngle = glm::radians(glfwGetTime() * 15.0f); // Ugao rotacije (menjati brzinu rotacije po potrebi)
+        float venusOrbitRadius = 13.0f;
+        float venusAngle = glm::radians(glfwGetTime() * 15.0f);
         glm::vec3 venusPosition = glm::vec3(cos(venusAngle) * venusOrbitRadius + sunPosition.x, sunPosition.y, sin(venusAngle) * venusOrbitRadius + sunPosition.z);
         glm::mat4 model4 = glm::mat4(1.0f);
         model4 = glm::translate(model4, venusPosition);
         model4 = glm::scale(model4, glm::vec3(1.0f));
         ourShader.setMat4("model", model4);
         venusModel.Draw(ourShader);
+
+        glm::mat4 model3 = glm::mat4(1.0f);
+        model3 = glm::translate(model3, glm::vec3(15.0f, -3.5f, 0.0f));
+        model3 = glm::scale(model3, glm::vec3(5.0f));
+        model3 = glm::rotate(model3, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", model3);
+        sunModel.Draw(ourShader);
 
 
         /*
@@ -293,15 +300,6 @@ int main() {
         venusModel.Draw(ourShader);
 
         */
-
-
-
-        glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::translate(model3, glm::vec3(15.0f, -3.5f, 0.0f));
-        model3 = glm::scale(model3, glm::vec3(5.0f));
-        model3 = glm::rotate(model3, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        ourShader.setMat4("model", model3);
-        sunModel.Draw(ourShader);
 
 
         if (programState->ImGuiEnabled)
