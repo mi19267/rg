@@ -174,11 +174,13 @@ int main() {
     Model mercuryModel("resources/objects/mercury/Mercury_1K.obj");
     Model sunModel("resources/objects/sun/sun.obj");
     Model venusModel("resources/objects/venus/jupiter.obj");
+    Model saturnModel("resources/objects/saturn/saturn1.obj");
 
     earthModel.SetShaderTextureNamePrefix("material.");
     mercuryModel.SetShaderTextureNamePrefix("material.");
     sunModel.SetShaderTextureNamePrefix("material.");
     venusModel.SetShaderTextureNamePrefix("material.");
+    saturnModel.SetShaderTextureNamePrefix("material.");
 
     glm::vec3 sunPosition = glm::vec3(15.0f, -3.5f, 0.0f);
     glm::vec3 pointLightPosition = glm::vec3(18.949017f, -0.218707f, 4.156883);
@@ -305,7 +307,7 @@ int main() {
         ourShader.setMat4("view", view);
 
 
-        float earthOrbitRadius = 16.0f;
+        float earthOrbitRadius = 18.0f;
         float earthAngle = glm::radians(glfwGetTime() * 10.0f);
         glm::vec3 earthPosition = glm::vec3(cos(earthAngle) * earthOrbitRadius + sunPosition.x, sunPosition.y, sin(earthAngle) * earthOrbitRadius + sunPosition.z);
         glm::mat4 model1 = glm::mat4(1.0f);
@@ -335,6 +337,16 @@ int main() {
         model4 = glm::scale(model4, glm::vec3(1.0f));
         ourShader.setMat4("model", model4);
         venusModel.Draw(ourShader);
+
+        float saturnOrbitRadius = 28.0f;
+        float saturnAngle = glm::radians(glfwGetTime() * 5.0f);
+        glm::vec3 saturnPosition = glm::vec3(cos(saturnAngle) * saturnOrbitRadius + sunPosition.x, sunPosition.y, sin(saturnAngle) * saturnOrbitRadius + sunPosition.z);
+        glm::mat4 model5 = glm::mat4(1.0f);
+        model5 = glm::translate(model5, saturnPosition);
+        model5 = glm::rotate(model5, glm::radians(static_cast<float>(glfwGetTime() * 12.0)), glm::vec3(0.0f, 1.0f, 0.0f));
+        model5 = glm::scale(model5, glm::vec3(1.0f));
+        ourShader.setMat4("model", model5);
+        saturnModel.Draw(ourShader);
 
 
         glm::mat4 model3 = glm::mat4(1.0f);
