@@ -181,7 +181,7 @@ int main() {
     venusModel.SetShaderTextureNamePrefix("material.");
 
     glm::vec3 sunPosition = glm::vec3(15.0f, -3.5f, 0.0f);
-    glm::vec3 pointLightPosition = glm::vec3(15.0f, -3.5f, 0.0f);
+    glm::vec3 pointLightPosition = glm::vec3(18.949017f, -0.218707f, 4.156883);
     programState->pointLight.position = pointLightPosition;
 
 
@@ -471,7 +471,7 @@ void DrawImGui(ProgramState *programState) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    /*
+
     {
         static float f = 0.0f;
         ImGui::Begin("Hello window");
@@ -496,7 +496,7 @@ void DrawImGui(ProgramState *programState) {
         ImGui::Checkbox("Camera mouse update", &programState->CameraMouseMovementUpdateEnabled);
         ImGui::End();
     }
-     */
+
 
 
     ImGui::Render();
