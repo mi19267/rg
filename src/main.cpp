@@ -27,6 +27,8 @@ void processInput(GLFWwindow *window);
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
+unsigned int loadCubeMap(vector<std::string> skyBoxFaces);
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -139,7 +141,7 @@ int main() {
     }
 
     // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-    stbi_set_flip_vertically_on_load(false);
+    stbi_set_flip_vertically_on_load(true);
 
     programState = new ProgramState;
     programState->LoadFromFile("resources/program_state.txt");
@@ -164,6 +166,7 @@ int main() {
     // build and compile shaders
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
+    Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
 
     // load models
     // -----------
@@ -178,13 +181,14 @@ int main() {
     venusModel.SetShaderTextureNamePrefix("material.");
 
     glm::vec3 sunPosition = glm::vec3(15.0f, -3.5f, 0.0f);
-    programState->pointLight.position = sunPosition;
+    glm::vec3 pointLightPosition = glm::vec3(15.0f, -3.5f, 0.0f);
+    programState->pointLight.position = pointLightPosition;
 
 
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = sunPosition;
+    pointLight.position = pointLightPosition;
     pointLight.ambient = glm::vec3(0.5, 0.5, 0.5);
-    pointLight.diffuse = glm::vec3(2.5, 2.5, 2.5);
+    pointLight.diffuse = glm::vec3(10.0, 10.0,10.0);  //2.5
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
     pointLight.constant = 1.0f;
@@ -193,6 +197,74 @@ int main() {
 
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    // SKYBOX
+    float vertices[] = {
+            -1.0f,  1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+
+            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+
+            -1.0f,  1.0f, -1.0f,
+            1.0f,  1.0f, -1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+            1.0f, -1.0f,  1.0f
+    };
+
+    unsigned int skyboxVAO, skyboxVBO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    vector<std::string> skyBoxFaces = {
+            FileSystem::getPath("resources/textures/skybox/right.jpg"),
+            FileSystem::getPath("resources/textures/skybox/left.jpg"),
+            FileSystem::getPath("resources/textures/skybox/bottom.jpg"),
+            FileSystem::getPath("resources/textures/skybox/top.jpg"),
+            FileSystem::getPath("resources/textures/skybox/front.jpg"),
+            FileSystem::getPath("resources/textures/skybox/back.jpg")
+            };
+    
+    unsigned int cubemapTexture = loadCubeMap(skyBoxFaces);
+
+    skyboxShader.use();
+    skyboxShader.setInt("skybox", 0);
 
     // render loop
     // -----------
@@ -207,16 +279,17 @@ int main() {
         // -----
         processInput(window);
 
-
         // render
         // ------
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
+                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = programState->camera.GetViewMatrix();
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
         //pointLight.position = glm::vec3(15.0f * cos(currentFrame), -1.0f, 0.0 * sin(currentFrame));
-        pointLight.position = glm::vec3(15.0f, -3.5f, 0.0 );
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -227,15 +300,14 @@ int main() {
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
-                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = programState->camera.GetViewMatrix();
+
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
         glm::vec3 sunPosition = glm::vec3(15.0f, -3.5f, 0.0f);
 
-        float earthOrbitRadius = 18.0f;
+        /*
+        float earthOrbitRadius = 8.0f;
         float earthAngle = glm::radians(glfwGetTime() * 10.0f);
         glm::vec3 earthPosition = glm::vec3(cos(earthAngle) * earthOrbitRadius + sunPosition.x, sunPosition.y, sin(earthAngle) * earthOrbitRadius + sunPosition.z);
         glm::mat4 model1 = glm::mat4(1.0f);
@@ -246,8 +318,7 @@ int main() {
         earthModel.Draw(ourShader);
 
 
-
-        float mercuryOrbitRadius = 11.0f;
+        float mercuryOrbitRadius = 3.0f;
         float mercuryAngle = glm::radians(glfwGetTime() * 20.0f);
         glm::vec3 mercuryPosition = glm::vec3(cos(mercuryAngle) * mercuryOrbitRadius + sunPosition.x, sunPosition.y, sin(mercuryAngle) * mercuryOrbitRadius + sunPosition.z);
         glm::mat4 model2 = glm::mat4(1.0f);
@@ -257,7 +328,7 @@ int main() {
         ourShader.setMat4("model", model2);
         mercuryModel.Draw(ourShader);
 
-        float venusOrbitRadius = 13.0f;
+        float venusOrbitRadius = 6.0f;
         float venusAngle = glm::radians(glfwGetTime() * 15.0f);
         glm::vec3 venusPosition = glm::vec3(cos(venusAngle) * venusOrbitRadius + sunPosition.x, sunPosition.y, sin(venusAngle) * venusOrbitRadius + sunPosition.z);
         glm::mat4 model4 = glm::mat4(1.0f);
@@ -271,15 +342,15 @@ int main() {
         glm::mat4 model3 = glm::mat4(1.0f);
         model3 = glm::translate(model3, sunPosition);
         //model3 = glm::rotate(model3, glm::radians(static_cast<float>(glfwGetTime() * 5.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        model3 = glm::scale(model3, glm::vec3(5.0f));
+        //model3 = glm::scale(model3, glm::vec3(2.0f));
         ourShader.setMat4("model", model3);
         sunModel.Draw(ourShader);
+         */
 
-
-        /*
         // EARTH
         glm::mat4 model1 = glm::mat4(1.0f);
         model1 = glm::translate(model1, programState->earthPosition);
+        //model1 = glm::rotate(model1, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
         model1 = glm::scale(model1, glm::vec3(1.0f));
         ourShader.setMat4("model", model1);
         earthModel.Draw(ourShader);
@@ -292,6 +363,7 @@ int main() {
         ourShader.setMat4("model", model2);
         mercuryModel.Draw(ourShader);
 
+        // VENUS
         glm::mat4 model4 = glm::mat4(1.0f);
         model4 = glm::translate(model4, glm::vec3(5.0f, -3.5f, 0.0f));
         model4 = glm::scale(model4, glm::vec3(1.0f));
@@ -299,24 +371,38 @@ int main() {
         ourShader.setMat4("model", model4);
         venusModel.Draw(ourShader);
 
+        // SUN
         glm::mat4 model3 = glm::mat4(1.0f);
         model3 = glm::translate(model3, sunPosition);
         //model3 = glm::rotate(model3, glm::radians(static_cast<float>(glfwGetTime() * 5.0)), glm::vec3(0.0f, 1.0f, 0.0f));
         model3 = glm::scale(model3, glm::vec3(5.0f));
         ourShader.setMat4("model", model3);
         sunModel.Draw(ourShader);
-        */
+
+        // SKYBOX
+        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);
+        skyboxShader.use();
+        skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
+        skyboxShader.setMat4("projection", projection);
+
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
+
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
 
-
-
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    glDeleteVertexArrays(1, &skyboxVAO);
+    glDeleteBuffers(1, &skyboxVAO);
 
     programState->SaveToFile("resources/program_state.txt");
     delete programState;
@@ -424,4 +510,34 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
+}
+
+
+unsigned int loadCubeMap(vector<std::string> skyBoxFaces) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrComponents;
+    for (unsigned int i = 0; i < skyBoxFaces.size(); i++)
+    {
+        unsigned char *data = stbi_load(skyBoxFaces[i].c_str(), &width, &height, &nrComponents, 0);
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cout << "Failed to load cube map texture face: " << skyBoxFaces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
 }
