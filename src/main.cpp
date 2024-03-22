@@ -63,7 +63,7 @@ struct ProgramState {
     float earthScale = 1.0f;
     PointLight pointLight;
     ProgramState()
-            : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
+            : camera(glm::vec3(8.5429f, -0.8123f, 34.998272f)) {}
 
     void SaveToFile(std::string filename);
 
@@ -187,7 +187,7 @@ int main() {
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = pointLightPosition;
-    pointLight.ambient = glm::vec3(0.5, 0.5, 0.5);
+    pointLight.ambient = glm::vec3(1.0, 1.0, 1.0);    //0.5
     pointLight.diffuse = glm::vec3(10.0, 10.0,10.0);  //2.5
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
@@ -304,10 +304,8 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
-        glm::vec3 sunPosition = glm::vec3(15.0f, -3.5f, 0.0f);
 
-        /*
-        float earthOrbitRadius = 8.0f;
+        float earthOrbitRadius = 16.0f;
         float earthAngle = glm::radians(glfwGetTime() * 10.0f);
         glm::vec3 earthPosition = glm::vec3(cos(earthAngle) * earthOrbitRadius + sunPosition.x, sunPosition.y, sin(earthAngle) * earthOrbitRadius + sunPosition.z);
         glm::mat4 model1 = glm::mat4(1.0f);
@@ -318,7 +316,7 @@ int main() {
         earthModel.Draw(ourShader);
 
 
-        float mercuryOrbitRadius = 3.0f;
+        float mercuryOrbitRadius = 10.0f;
         float mercuryAngle = glm::radians(glfwGetTime() * 20.0f);
         glm::vec3 mercuryPosition = glm::vec3(cos(mercuryAngle) * mercuryOrbitRadius + sunPosition.x, sunPosition.y, sin(mercuryAngle) * mercuryOrbitRadius + sunPosition.z);
         glm::mat4 model2 = glm::mat4(1.0f);
@@ -328,7 +326,7 @@ int main() {
         ourShader.setMat4("model", model2);
         mercuryModel.Draw(ourShader);
 
-        float venusOrbitRadius = 6.0f;
+        float venusOrbitRadius = 12.0f;
         float venusAngle = glm::radians(glfwGetTime() * 15.0f);
         glm::vec3 venusPosition = glm::vec3(cos(venusAngle) * venusOrbitRadius + sunPosition.x, sunPosition.y, sin(venusAngle) * venusOrbitRadius + sunPosition.z);
         glm::mat4 model4 = glm::mat4(1.0f);
@@ -342,32 +340,34 @@ int main() {
         glm::mat4 model3 = glm::mat4(1.0f);
         model3 = glm::translate(model3, sunPosition);
         //model3 = glm::rotate(model3, glm::radians(static_cast<float>(glfwGetTime() * 5.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        //model3 = glm::scale(model3, glm::vec3(2.0f));
+        model3 = glm::scale(model3, glm::vec3(4.0f));
         ourShader.setMat4("model", model3);
         sunModel.Draw(ourShader);
-         */
 
+        /*
         // EARTH
         glm::mat4 model1 = glm::mat4(1.0f);
         model1 = glm::translate(model1, programState->earthPosition);
-        //model1 = glm::rotate(model1, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        model1 = glm::scale(model1, glm::vec3(1.0f));
+        model1 = glm::rotate(model1, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
+        //model1 = glm::scale(model1, glm::vec3(1.0f));
         ourShader.setMat4("model", model1);
         earthModel.Draw(ourShader);
 
         // MERCURY
         glm::mat4 model2 = glm::mat4(1.0f);
         model2 = glm::translate(model2, glm::vec3(10.0f, -3.5f, 0.0f));
-        model2 = glm::scale(model2, glm::vec3(2.0f));
-        model2 = glm::rotate(model2, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model2 = glm::rotate(model2, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
+        //model2 = glm::rotate(model2, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //model2 = glm::scale(model2, glm::vec3(2.0f));
         ourShader.setMat4("model", model2);
         mercuryModel.Draw(ourShader);
 
         // VENUS
         glm::mat4 model4 = glm::mat4(1.0f);
         model4 = glm::translate(model4, glm::vec3(5.0f, -3.5f, 0.0f));
-        model4 = glm::scale(model4, glm::vec3(1.0f));
-        model4 = glm::rotate(model4, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model4 = glm::rotate(model4, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
+        //model4 = glm::rotate(model4, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //model4 = glm::scale(model4, glm::vec3(1.0f));
         ourShader.setMat4("model", model4);
         venusModel.Draw(ourShader);
 
@@ -375,9 +375,10 @@ int main() {
         glm::mat4 model3 = glm::mat4(1.0f);
         model3 = glm::translate(model3, sunPosition);
         //model3 = glm::rotate(model3, glm::radians(static_cast<float>(glfwGetTime() * 5.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        model3 = glm::scale(model3, glm::vec3(5.0f));
+        //model3 = glm::scale(model3, glm::vec3(5.0f));
         ourShader.setMat4("model", model3);
         sunModel.Draw(ourShader);
+         */
 
         // SKYBOX
         glDepthMask(GL_FALSE);
@@ -469,15 +470,15 @@ void DrawImGui(ProgramState *programState) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    /*
+
     {
         static float f = 0.0f;
         ImGui::Begin("Hello window");
         ImGui::Text("Hello text");
         ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
         ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
-        ImGui::DragFloat3("Backpack position", (float*)&programState->backpackPosition);
-        ImGui::DragFloat("Backpack scale", &programState->backpackScale, 0.05, 0.1, 4.0);
+        ImGui::DragFloat3("Backpack position", (float*)&programState->earthPosition);
+        ImGui::DragFloat("Backpack scale", &programState->earthScale, 0.05, 0.1, 4.0);
 
         ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
         ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
@@ -494,7 +495,7 @@ void DrawImGui(ProgramState *programState) {
         ImGui::Checkbox("Camera mouse update", &programState->CameraMouseMovementUpdateEnabled);
         ImGui::End();
     }
-    */
+
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
