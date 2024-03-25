@@ -163,10 +163,17 @@ int main() {
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glFrontFace(GL_CW);
     // build and compile shaders
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
+    //Shader blendingShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
 
     // load models
     // -----------
@@ -338,6 +345,7 @@ int main() {
         ourShader.setMat4("model", model4);
         venusModel.Draw(ourShader);
 
+
         float saturnOrbitRadius = 28.0f;
         float saturnAngle = glm::radians(glfwGetTime() * 5.0f);
         glm::vec3 saturnPosition = glm::vec3(cos(saturnAngle) * saturnOrbitRadius + sunPosition.x, sunPosition.y, sin(saturnAngle) * saturnOrbitRadius + sunPosition.z);
@@ -347,6 +355,7 @@ int main() {
         model5 = glm::scale(model5, glm::vec3(1.0f));
         ourShader.setMat4("model", model5);
         saturnModel.Draw(ourShader);
+
 
 
         glm::mat4 model3 = glm::mat4(1.0f);
@@ -391,6 +400,18 @@ int main() {
         ourShader.setMat4("model", model3);
         sunModel.Draw(ourShader);
          */
+
+        /*
+        // SATURN
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(5.0f, -3.5f, 0.0f));
+        //model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
+        //model4 = glm::rotate(model4, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //model4 = glm::scale(model4, glm::vec3(1.0f));
+        ourShader.setMat4("model", model);
+        saturnModel.Draw(ourShader);
+         */
+
 
         // SKYBOX
         glDepthMask(GL_FALSE);
