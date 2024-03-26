@@ -163,17 +163,20 @@ int main() {
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // BLENDINNG
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // FACE CULLING
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
     glFrontFace(GL_CW);
+
     // build and compile shaders
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
-    //Shader blendingShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
+    Shader blendingShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
 
     // load models
     // -----------
@@ -346,6 +349,7 @@ int main() {
         venusModel.Draw(ourShader);
 
 
+        glDisable(GL_CULL_FACE);
         float saturnOrbitRadius = 28.0f;
         float saturnAngle = glm::radians(glfwGetTime() * 5.0f);
         glm::vec3 saturnPosition = glm::vec3(cos(saturnAngle) * saturnOrbitRadius + sunPosition.x, sunPosition.y, sin(saturnAngle) * saturnOrbitRadius + sunPosition.z);
@@ -355,7 +359,37 @@ int main() {
         model5 = glm::scale(model5, glm::vec3(1.0f));
         ourShader.setMat4("model", model5);
         saturnModel.Draw(ourShader);
+        glEnable(GL_CULL_FACE);
 
+
+        // BLENDING
+        blendingShader.use();
+        blendingShader.setVec3("viewPosition", programState->camera.Position);
+        blendingShader.setFloat("material.shininess", 32.0f);
+
+        blendingShader.setMat4("projection", projection);
+        blendingShader.setMat4("view", view);
+
+        blendingShader.setVec3("dirLight.direction", glm::vec3(-0.5f, -0.7f, 0.4f));
+        blendingShader.setVec3("dirLight.ambient", glm::vec3(0.3f));
+        blendingShader.setVec3("dirLight.diffuse", glm::vec3(0.3f));
+        blendingShader.setVec3("dirLight.specular", glm::vec3(0.1f));
+
+        blendingShader.setVec3("pointLights[0].position", glm::vec3(6.0f+sin(currentFrame)*0.6f,1.0f+cos(currentFrame*2)*0.2f+sin(currentFrame)*0.4f,-17.0f+cos(currentFrame)*0.6f));
+        blendingShader.setVec3("pointLights[0].ambient", pointLight.ambient);
+        blendingShader.setVec3("pointLights[0].diffuse", pointLight.diffuse);
+        blendingShader.setVec3("pointLights[0].specular", pointLight.specular);
+        blendingShader.setFloat("pointLights[0].constant", pointLight.constant);
+        blendingShader.setFloat("pointLights[0].linear", pointLight.linear);
+        blendingShader.setFloat("pointLights[0].quadratic", pointLight.quadratic);
+
+        blendingShader.setVec3("pointLights[1].position", glm::vec3(6.0f+cos(currentFrame*2)*0.6f,1.0f+cos(currentFrame)*0.2f+cos(currentFrame)*0.4f,-17.0f+sin(currentFrame)*0.6f));
+        blendingShader.setVec3("pointLights[1].ambient", pointLight.ambient);
+        blendingShader.setVec3("pointLights[1].diffuse", pointLight.diffuse);
+        blendingShader.setVec3("pointLights[1].specular", pointLight.specular);
+        blendingShader.setFloat("pointLights[1].constant", pointLight.constant);
+        blendingShader.setFloat("pointLights[1].linear", pointLight.linear);
+        blendingShader.setFloat("pointLights[1].quadratic", pointLight.quadratic);
 
 
         glm::mat4 model3 = glm::mat4(1.0f);
@@ -363,54 +397,7 @@ int main() {
         //model3 = glm::rotate(model3, glm::radians(static_cast<float>(glfwGetTime() * 5.0)), glm::vec3(0.0f, 1.0f, 0.0f));
         model3 = glm::scale(model3, glm::vec3(4.0f));
         ourShader.setMat4("model", model3);
-        sunModel.Draw(ourShader);
-
-        /*
-        // EARTH
-        glm::mat4 model1 = glm::mat4(1.0f);
-        model1 = glm::translate(model1, programState->earthPosition);
-        model1 = glm::rotate(model1, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        //model1 = glm::scale(model1, glm::vec3(1.0f));
-        ourShader.setMat4("model", model1);
-        earthModel.Draw(ourShader);
-
-        // MERCURY
-        glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, glm::vec3(10.0f, -3.5f, 0.0f));
-        model2 = glm::rotate(model2, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        //model2 = glm::rotate(model2, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        //model2 = glm::scale(model2, glm::vec3(2.0f));
-        ourShader.setMat4("model", model2);
-        mercuryModel.Draw(ourShader);
-
-        // VENUS
-        glm::mat4 model4 = glm::mat4(1.0f);
-        model4 = glm::translate(model4, glm::vec3(5.0f, -3.5f, 0.0f));
-        model4 = glm::rotate(model4, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        //model4 = glm::rotate(model4, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        //model4 = glm::scale(model4, glm::vec3(1.0f));
-        ourShader.setMat4("model", model4);
-        venusModel.Draw(ourShader);
-
-        // SUN
-        glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::translate(model3, sunPosition);
-        //model3 = glm::rotate(model3, glm::radians(static_cast<float>(glfwGetTime() * 5.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        //model3 = glm::scale(model3, glm::vec3(5.0f));
-        ourShader.setMat4("model", model3);
-        sunModel.Draw(ourShader);
-         */
-
-        /*
-        // SATURN
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(5.0f, -3.5f, 0.0f));
-        //model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime() * 10.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        //model4 = glm::rotate(model4, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        //model4 = glm::scale(model4, glm::vec3(1.0f));
-        ourShader.setMat4("model", model);
-        saturnModel.Draw(ourShader);
-         */
+        sunModel.Draw(blendingShader);
 
 
         // SKYBOX
