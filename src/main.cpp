@@ -185,12 +185,14 @@ int main() {
     Model sunModel("resources/objects/sun/sun.obj");
     Model venusModel("resources/objects/venus/jupiter.obj");
     Model saturnModel("resources/objects/saturn/saturn1.obj");
+    Model coreModel("resources/objects/core/13913_Sun_v2_l3.obj");
 
     earthModel.SetShaderTextureNamePrefix("material.");
     mercuryModel.SetShaderTextureNamePrefix("material.");
     sunModel.SetShaderTextureNamePrefix("material.");
     venusModel.SetShaderTextureNamePrefix("material.");
     saturnModel.SetShaderTextureNamePrefix("material.");
+    coreModel.SetShaderTextureNamePrefix("material.");
 
     glm::vec3 sunPosition = glm::vec3(15.0f, -3.5f, 0.0f);
     glm::vec3 pointLightPosition = glm::vec3(18.949017f, -0.218707f, 4.156883);
@@ -348,6 +350,14 @@ int main() {
         ourShader.setMat4("model", model4);
         venusModel.Draw(ourShader);
 
+        glm::mat4 model6 = glm::mat4(1.0f);
+        model6 = glm::translate(model6, sunPosition);
+        //model6 = glm::rotate(model6, glm::radians(static_cast<float>(glfwGetTime() * 5.0)), glm::vec3(0.0f, 1.0f, 0.0f));
+        model6 = glm::scale(model6, glm::vec3(4.0f));
+        ourShader.setMat4("model", model6);
+        coreModel.Draw(ourShader);
+
+
 
         glDisable(GL_CULL_FACE);
         float saturnOrbitRadius = 28.0f;
@@ -398,6 +408,7 @@ int main() {
         model3 = glm::scale(model3, glm::vec3(4.0f));
         ourShader.setMat4("model", model3);
         sunModel.Draw(blendingShader);
+
 
 
         // SKYBOX
