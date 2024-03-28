@@ -186,12 +186,14 @@ int main() {
     Model sunModel("resources/objects/sun/sun.obj");
     Model venusModel("resources/objects/venus/jupiter.obj");
     Model saturnModel("resources/objects/saturn/saturn1.obj");
+    Model asteroidsModel("resources/objects/asteroids/asteroid_03_01.obj");
 
     earthModel.SetShaderTextureNamePrefix("material.");
     mercuryModel.SetShaderTextureNamePrefix("material.");
     venusModel.SetShaderTextureNamePrefix("material.");
     saturnModel.SetShaderTextureNamePrefix("material.");
     sunModel.SetShaderTextureNamePrefix("material.");
+    asteroidsModel.SetShaderTextureNamePrefix("material.");
 
     glm::vec3 position = glm::vec3(15.0f, -3.5f, 0.0f);
     glm::vec3 pointLightPosition = glm::vec3(14.848729f, -3.412171f, -0.918390);//glm::vec3(18.949017f, -0.218707f, 4.156883);
@@ -328,7 +330,6 @@ int main() {
         ourShader.setMat4("model", model1);
         earthModel.Draw(ourShader);
 
-
         float mercuryOrbitRadius = 10.0f;
         float mercuryAngle = glm::radians(glfwGetTime() * 20.0f);
         glm::vec3 mercuryPosition = glm::vec3(cos(mercuryAngle) * mercuryOrbitRadius + position.x, position.y, sin(mercuryAngle) * mercuryOrbitRadius + position.z);
@@ -354,7 +355,6 @@ int main() {
         model3 = glm::translate(model3, pointLightPosition);
         //model3 = glm::rotate(model3, glm::radians(static_cast<float>(glfwGetTime() * 5.0)), glm::vec3(0.0f, 1.0f, 0.0f));
         model3 = glm::scale(model3, glm::vec3(4.466f));
-        //model3 = glm::scale(model3, glm::vec3(programState->modelScale));
         ourShader.setMat4("model", model3);
         sunModel.Draw(ourShader);
 
@@ -402,6 +402,20 @@ int main() {
         blendingShader.setFloat("pointLights[1].linear", pointLight.linear);
         blendingShader.setFloat("pointLights[1].quadratic", pointLight.quadratic);
 
+        glDisable(GL_CULL_FACE);
+
+        // ASTEROIDS
+        float asteroidOrbitRadius = 32.0f;
+        float asteroidAngle = glm::radians(glfwGetTime() * 5.0f);
+        glm::vec3 asteroidPosition = glm::vec3(cos(asteroidAngle) * asteroidOrbitRadius + position.x, position.y, sin(asteroidAngle) * asteroidOrbitRadius + position.z);
+        glm::mat4 model6 = glm::mat4(1.0f);
+        model6 = glm::translate(model6, asteroidPosition);
+        model6 = glm::rotate(model6, saturnAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+        model6 = glm::scale(model6, glm::vec3(0.1f));
+        ourShader.setMat4("model", model6);
+        asteroidsModel.Draw(ourShader);
+
+        glEnable(GL_CULL_FACE);
 
         // SKYBOX
         glDepthMask(GL_FALSE);
