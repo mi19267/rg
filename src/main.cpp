@@ -178,6 +178,7 @@ int main() {
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader blendingShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
+    Shader blinnShader("resources/shaders/blinn_phong.vs", "resources/shaders/blinn_phong.fs");
 
     // load models
     // -----------
@@ -196,7 +197,7 @@ int main() {
     asteroidsModel.SetShaderTextureNamePrefix("material.");
 
     glm::vec3 position = glm::vec3(15.0f, -3.5f, 0.0f);
-    glm::vec3 pointLightPosition = glm::vec3(14.848729f, -3.412171f, -0.918390);//glm::vec3(18.949017f, -0.218707f, 4.156883);
+    glm::vec3 pointLightPosition = glm::vec3(14.848729f, -3.412171f, -0.918390); //glm::vec3(18.949017f, -0.218707f, 4.156883);
     programState->pointLight.position = pointLightPosition;
 
 
@@ -319,7 +320,7 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
-
+        // EARTH
         float earthOrbitRadius = 18.0f;
         float earthAngle = glm::radians(glfwGetTime() * 10.0f);
         glm::vec3 earthPosition = glm::vec3(cos(earthAngle) * earthOrbitRadius + position.x, position.y, sin(earthAngle) * earthOrbitRadius + position.z);
@@ -330,26 +331,6 @@ int main() {
         ourShader.setMat4("model", model1);
         earthModel.Draw(ourShader);
 
-        float mercuryOrbitRadius = 10.0f;
-        float mercuryAngle = glm::radians(glfwGetTime() * 20.0f);
-        glm::vec3 mercuryPosition = glm::vec3(cos(mercuryAngle) * mercuryOrbitRadius + position.x, position.y, sin(mercuryAngle) * mercuryOrbitRadius + position.z);
-        glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2, mercuryPosition);
-        model2 = glm::rotate(model2, glm::radians(static_cast<float>(glfwGetTime() * 15.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        model2 = glm::scale(model2, glm::vec3(2.0f));
-        ourShader.setMat4("model", model2);
-        mercuryModel.Draw(ourShader);
-
-        float venusOrbitRadius = 12.0f;
-        float venusAngle = glm::radians(glfwGetTime() * 15.0f);
-        glm::vec3 venusPosition = glm::vec3(cos(venusAngle) * venusOrbitRadius + position.x, position.y, sin(venusAngle) * venusOrbitRadius + position.z);
-        glm::mat4 model4 = glm::mat4(1.0f);
-        model4 = glm::translate(model4, venusPosition);
-        model4 = glm::rotate(model4, glm::radians(static_cast<float>(glfwGetTime() * 12.0)), glm::vec3(0.0f, 1.0f, 0.0f));
-        model4 = glm::scale(model4, glm::vec3(1.0f));
-        ourShader.setMat4("model", model4);
-        venusModel.Draw(ourShader);
-
         // SUN
         glm::mat4 model3 = glm::mat4(1.0f);
         model3 = glm::translate(model3, pointLightPosition);
@@ -358,8 +339,8 @@ int main() {
         ourShader.setMat4("model", model3);
         sunModel.Draw(ourShader);
 
+        // SATURN
         glDisable(GL_CULL_FACE);
-
         float saturnOrbitRadius = 28.0f;
         float saturnAngle = glm::radians(glfwGetTime() * 5.0f);
         glm::vec3 saturnPosition = glm::vec3(cos(saturnAngle) * saturnOrbitRadius + position.x, position.y, sin(saturnAngle) * saturnOrbitRadius + position.z);
@@ -369,8 +350,34 @@ int main() {
         model5 = glm::scale(model5, glm::vec3(1.0f));
         ourShader.setMat4("model", model5);
         saturnModel.Draw(ourShader);
-
         glEnable(GL_CULL_FACE);
+
+        // BLINN_PHONG
+        blinnShader.use();
+        blinnShader.setMat4("projection", projection);
+        blinnShader.setMat4("view", view);
+        blinnShader.setVec3("viewPos", programState->camera.Position);
+        blinnShader.setVec3("lightPos", programState->pointLight.position);
+
+        float venusOrbitRadius = 12.0f;
+        float venusAngle = glm::radians(glfwGetTime() * 15.0f);
+        glm::vec3 venusPosition = glm::vec3(cos(venusAngle) * venusOrbitRadius + position.x, position.y, sin(venusAngle) * venusOrbitRadius + position.z);
+        glm::mat4 model4 = glm::mat4(1.0f);
+        model4 = glm::translate(model4, venusPosition);
+        model4 = glm::rotate(model4, glm::radians(static_cast<float>(glfwGetTime() * 12.0)), glm::vec3(0.0f, 1.0f, 0.0f));
+        model4 = glm::scale(model4, glm::vec3(1.0f));
+        blinnShader.setMat4("model", model4);
+        venusModel.Draw(blinnShader);
+
+        float mercuryOrbitRadius = 10.0f;
+        float mercuryAngle = glm::radians(glfwGetTime() * 20.0f);
+        glm::vec3 mercuryPosition = glm::vec3(cos(mercuryAngle) * mercuryOrbitRadius + position.x, position.y, sin(mercuryAngle) * mercuryOrbitRadius + position.z);
+        glm::mat4 model2 = glm::mat4(1.0f);
+        model2 = glm::translate(model2, mercuryPosition);
+        model2 = glm::rotate(model2, glm::radians(static_cast<float>(glfwGetTime() * 15.0)), glm::vec3(0.0f, 1.0f, 0.0f));
+        model2 = glm::scale(model2, glm::vec3(2.0f));
+        blinnShader.setMat4("model", model2);
+        mercuryModel.Draw(blinnShader);
 
 
         // BLENDING
@@ -402,9 +409,8 @@ int main() {
         blendingShader.setFloat("pointLights[1].linear", pointLight.linear);
         blendingShader.setFloat("pointLights[1].quadratic", pointLight.quadratic);
 
-        glDisable(GL_CULL_FACE);
-
         // ASTEROIDS
+        glDisable(GL_CULL_FACE);
         float asteroidOrbitRadius = 32.0f;
         float asteroidAngle = glm::radians(glfwGetTime() * 5.0f);
         glm::vec3 asteroidPosition = glm::vec3(cos(asteroidAngle) * asteroidOrbitRadius + position.x, position.y, sin(asteroidAngle) * asteroidOrbitRadius + position.z);
@@ -413,8 +419,7 @@ int main() {
         model6 = glm::rotate(model6, saturnAngle, glm::vec3(0.0f, 1.0f, 0.0f));
         model6 = glm::scale(model6, glm::vec3(0.1f));
         ourShader.setMat4("model", model6);
-        asteroidsModel.Draw(ourShader);
-
+        asteroidsModel.Draw(blendingShader);
         glEnable(GL_CULL_FACE);
 
         // SKYBOX
