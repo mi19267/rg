@@ -1,6 +1,5 @@
-# project_base
-Prazan projekat sa pratećim bibliotekama koje koristimo na času. 
-
+# Solar system
+Projekat iz Računarske grafike.  
 # Uputstvo
 1. `git clone https://github.com/matf-racunarska-grafika/project_base.git`
 2. CLion -> Open -> path/to/my/project_base
@@ -9,3 +8,13 @@ Prazan projekat sa pratećim bibliotekama koje koristimo na času.
 5. Zaglavlja (h i hpp) fajlovi idu u include
 6. Šejderi idu u folder shaders. `Vertex shader` ima ekstenziju `.vs`, `fragment shader` ima ekstenziju `.fs`
 7. ALT+SHIFT+F10 -> project_base -> run
+
+# Projekat (Sadržaj)
+U projektu su implementirane sve obavezne oblasti:  
+:white_check_mark: Blending  
+:white_check_mark: Face culling  
+:white_check_mark: Advanced lighting    
+  
+Iz grupe A implementirana je oblast:  
+:white_check_mark: Cubemaps (skybox)
+
