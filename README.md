@@ -26,6 +26,9 @@ Iz grupe A implementirana je oblast:
 ![4aae77bf-991f-4309-9df7-84ef7e97fb6b](https://github.com/mi19267/rg/assets/120931843/16539e92-0aca-42d6-a8e5-dd1c17fae9de)  
 ![6b885948-9792-4376-89a4-4ef0b295eabe](https://github.com/mi19267/rg/assets/120931843/6c259343-f02a-4e49-9d4f-fa3741c8f59c)  
 
+# Author
+Iva Đorđević, 267/2019 (GitHub username: mi19267)
+
 
 
 
