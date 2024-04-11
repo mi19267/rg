@@ -29,9 +29,11 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 
 unsigned int loadCubeMap(vector<std::string> skyBoxFaces);
 
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+float exposure = 1.0f;
 
 // camera
 
@@ -142,7 +144,7 @@ int main() {
     }
 
     // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
 
     programState = new ProgramState;
     programState->LoadFromFile("resources/program_state.txt");
@@ -197,15 +199,15 @@ int main() {
     asteroidsModel.SetShaderTextureNamePrefix("material.");
 
     glm::vec3 position = glm::vec3(15.0f, -3.5f, 0.0f);
-    glm::vec3 pointLightPosition = glm::vec3(14.848729f, -3.412171f, -0.918390); //glm::vec3(18.949017f, -0.218707f, 4.156883);
+    glm::vec3 pointLightPosition = glm::vec3(14.848729f, -3.412171f, -0.918390);
     programState->pointLight.position = pointLightPosition;
 
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = pointLightPosition;
-    pointLight.ambient = glm::vec3(10.0, 10.0, 10.0);    //1.0
-    pointLight.diffuse = glm::vec3(20.0, 20.0,20.0);  //10.0
-    pointLight.specular = glm::vec3(10.0, 10.0, 10.0);    //1.0
+    pointLight.ambient = glm::vec3(10.0, 10.0, 10.0);
+    pointLight.diffuse = glm::vec3(20.0, 20.0,20.0);
+    pointLight.specular = glm::vec3(10.0, 10.0, 10.0);
 
     pointLight.constant = 1.0f;
     pointLight.linear = 0.09f;
@@ -271,8 +273,8 @@ int main() {
     vector<std::string> skyBoxFaces = {
             FileSystem::getPath("resources/textures/skybox/right.jpg"),
             FileSystem::getPath("resources/textures/skybox/left.jpg"),
-            FileSystem::getPath("resources/textures/skybox/bottom.jpg"),
             FileSystem::getPath("resources/textures/skybox/top.jpg"),
+            FileSystem::getPath("resources/textures/skybox/bottom.jpg"),
             FileSystem::getPath("resources/textures/skybox/front.jpg"),
             FileSystem::getPath("resources/textures/skybox/back.jpg")
             };
@@ -281,6 +283,7 @@ int main() {
 
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
+
 
     // render loop
     // -----------
@@ -305,7 +308,6 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-        //pointLight.position = glm::vec3(15.0f * cos(currentFrame), -1.0f, 0.0 * sin(currentFrame));
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -515,7 +517,7 @@ void DrawImGui(ProgramState *programState) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-
+    /*
     {
         static float f = 0.0f;
         ImGui::Begin("Hello window");
@@ -541,6 +543,7 @@ void DrawImGui(ProgramState *programState) {
         ImGui::Checkbox("Camera mouse update", &programState->CameraMouseMovementUpdateEnabled);
         ImGui::End();
     }
+    */
 
 
 
